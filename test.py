@@ -2,19 +2,33 @@
 # -*- coding: utf-8 -*-
 
 import telepost
-import album_sender
-import yaml
-from telegram.ext import Updater
+import time
+import plain_db
+import asyncio
 
-with open('credential') as f:
-	CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
-tele = Updater(CREDENTIALS['bot_token'], use_context=True)
-chat = tele.bot.get_chat(CREDENTIALS['channel'])
+existing = plain_db.load('existing')
+channel = 'twitter_translate'
 
-def test(url):
-	result = telepost.get(url)
-	print(result)
-	album_sender.send_v2(chat, result)
+def test():
+	post = telepost.getPost(channel, existing, min_time=1, max_time = time.time()) # get the first post outside existing ones
+	print(post)
+	posts = telepost.getPosts(channel, min_time=1, max_time = time.time())
+	print(posts.next().next())
+
+async def run():
+	# credential file need to contain telegram_api_hash, telegram_api_id and telegram_user_password
+	post_id = 1392
+	post_size = 2
+	filenames = await telepost.getImages(channel, post_id, post_size)
+	print(filenames)
+	await telepost.exitTelethon()
+
+def testAsync():
+	loop = asyncio.new_event_loop()
+	asyncio.set_event_loop(loop)
+	r = loop.run_until_complete(run())
+	loop.close()
 	
 if __name__=='__main__':
-	test('https://www.reddit.com/r/Feminism/comments/lwz97t/dump_the_dimorphism_between_female_and_male_brain/')
+	testAsync()
+	test()
