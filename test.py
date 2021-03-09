@@ -12,8 +12,8 @@ channel = 'twitter_translate'
 def test():
 	post = telepost.getPost(channel, existing, min_time=1, max_time = time.time()) # get the first post outside existing ones
 	print(post)
-	posts = telepost.getPosts(channel, min_time=1, max_time = time.time())
-	print(posts.next().next())
+	posts = telepost.getPosts(channel, min_time=1, max_time = time.time() - 24 * 10 * 60 * 60)
+	print(next(posts))
 
 async def run():
 	# credential file need to contain telegram_api_hash, telegram_api_id and telegram_user_password
