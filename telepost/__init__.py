@@ -1,79 +1,89 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-name = 'reddit_2_album'
+name = 'telepost'
 
-from telegram_util import AlbumResult as Result
 import yaml
-import os
-import praw
-import cached_url
-from bs4 import BeautifulSoup
-from PIL import Image
+import webgram
+import time
+from telethon import TelegramClient
+from telegram_util import isUrl
 
-def getCredential():
-    for root, _, files in os.walk("."):
-        for file in files:
-            if 'credential' in file.lower():
-                try:
-                    with open(os.path.join(root, file)) as f:  
-                        credential = yaml.load(f, Loader=yaml.FullLoader)
-                        credential['reddit_client_id']
-                        return credential
-                except:
-                    ...
+with open('credential') as f:
+    credential = yaml.load(f, Loader=yaml.FullLoader)
 
-credential = getCredential()
+Day = 24 * 60 * 60
 
-reddit = praw.Reddit(
-    client_id=credential['reddit_client_id'],
-    client_secret=credential['reddit_client_secret'],
-    password=credential['reddit_password'],
-    user_agent="testscript",
-    username=credential['reddit_username'],
-    check_for_async=False,
-)
+def getPosts(channel, min_time = None, max_time = None):
+    if not min_time:
+        min_time = time.time() - 2 * Day
+    if not max_time:
+        max_time = time.time() - Day
+    posts = webgram.getPosts(channel)[1:]
+    for post in posts:
+        if post.time < max_time:
+            yield post
+    while posts and posts[0].time > min_time:
+        pivot = posts[0].post_id
+        posts = webgram.getPosts(channel, posts[0].post_id, 
+            direction='before', force_cache=True)[1:]
+        for post in posts:
+            if post.time < max_time:
+                yield post
 
-def getGallery(url):
-    content = cached_url.get(url, force_cache=True)
-    soup = BeautifulSoup(content, 'html.parser')
-    for item in soup.find_all('a'):
-        if item.parent.name != 'figure':
+def getPost(channel, existing_file, min_time = None, max_time = None):
+    for post in getPosts(channel, min_time, max_time):
+        key = 'https://t.me/' + post.getKey()
+        if existing_file.get(key):
             continue
-        yield item['href'] 
+        return post
 
-def isWebpage(url):
-    if url.endswith('mp4'):
-        return False
-    cached_url.get(url, mode='b', force_cache=True)
-    try:
-        Image.open(cached_url.getFilePath(url))
-        return False
-    except:
-        return True
+async def getChannelImp(client, channel):
+    if channel not in credential['id_map']:
+        entity = await client.get_entity(channel)
+        credential['id_map'][channel] = entity.id
+        with open('credential', 'w') as f:
+            f.write(yaml.dump(credential, sort_keys=True, indent=2, allow_unicode=True))
+        return entity
+    return await client.get_entity(credential['id_map'][channel])
+        
+channels_cache = {}
+async def getChannel(client, channel):
+    if channel in channels_cache:
+        return channels_cache[channel]
+    channels_cache[channel] = await getChannelImp(client, channel)
+    return channels_cache[channel]
 
-def get(path):
-    try:
-        reddit_id = path.split('/')[6] # may need to revisit
-    except:
-        reddit_id = path
-    submission = reddit.submission(reddit_id)
-    result = Result()
-    result.url = path
-    
-    result.cap = submission.title
-    if submission.selftext:
-        result.cap += '\n\n%s' % submission.selftext
+client_cache = {}
+async def getTelethonClient():
+    if 'client' in client_cache:
+        return client_cache['client']
+    client = TelegramClient('session_file', credential['telegram_api_id'], credential['telegram_api_hash'])
+    await client.start(password=credential['telegram_user_password'])
+    client_cache['client'] = client   
+    return client_cache['client']
 
-    if 'gallery' in submission.url.split('/'):
-        result.imgs = list(getGallery(submission.url))
-        return result
+async def getImages(channel, post_id, post_size):
+    client = await getTelethonClient()
+    entity = await getChannel(client, channel)
+    posts = await client.get_messages(entity, min_id=post_id - 1, max_id = post_id + post_size)
+    result = []
+    for post in posts[::-1]:
+        fn = await post.download_media('tmp/')
+        result.append(fn)
+    return result
 
-    # 'v.redd.it' in submission.url 
-    # check if we want to deal with video
+async def exitTelethon():
+    if 'client' in client_cache:
+        await client_cache['client'].disconnect()
 
-    if isWebpage(submission.url):
-        result.cap += '\n\n' + submission.url
-    else:
-        result.imgs = [submission.url]
+def getText(soup):
+    for item in soup.find_all('a'):
+        if item.get('href') and not isUrl(item.text):
+                item.replace_with('\n\n' + item.get('href') + '\n\n')
+    for item in soup.find_all('br'):
+        item.replace_with('\n')
+    result = soup.text.strip()
+    for _ in range(5):
+        result = result.replace('\n\n\n', '\n\n')
     return result
