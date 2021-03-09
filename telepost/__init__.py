@@ -9,6 +9,8 @@ import time
 from telethon import TelegramClient
 from telegram_util import isUrl
 
+# TODO: may need async getTextMarkdown
+
 with open('credential') as f:
     credential = yaml.load(f, Loader=yaml.FullLoader)
 

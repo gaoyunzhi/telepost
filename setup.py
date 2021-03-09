@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="reddit_2_album",
-    version="0.0.9",
+    name="telepost",
+    version="0.0.1",
     author="Yunzhi Gao",
     author_email="gaoyunzhi@gmail.com",
-    description="Return photo list and caption (markdown format) from reddit.",
+    description="Get post from telegram and make ready to repost it to other places (twitter / douban / reddit).",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/gaoyunzhi/reddit_2_album",
+    url="https://github.com/gaoyunzhi/telepost",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -19,12 +19,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'bs4',
         'telegram_util',
         'pyyaml',
-        'praw',
-        'cached_url',
-        'Pillow',
+        'webgram',
+        'telethon',
     ],
     python_requires='>=3.0',
 )
