@@ -6,7 +6,7 @@ import album_sender
 import yaml
 from telegram.ext import Updater
 
-with open('CREDENTIALS') as f:
+with open('credential') as f:
 	CREDENTIALS = yaml.load(f, Loader=yaml.FullLoader)
 tele = Updater(CREDENTIALS['bot_token'], use_context=True)
 chat = tele.bot.get_chat(CREDENTIALS['channel'])
