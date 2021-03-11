@@ -5,6 +5,7 @@ import telepost
 import time
 import plain_db
 import asyncio
+import webgram
 
 existing = plain_db.load('existing')
 channel = 'twitter_translate'
@@ -28,7 +29,12 @@ def testAsync():
 	asyncio.set_event_loop(loop)
 	r = loop.run_until_complete(run())
 	loop.close()
-	
+
+def testGetText():
+	post = webgram.getPost('twitter_translate', 1218)
+	print(telepost.getText(post.text))
+
 if __name__=='__main__':
-	testAsync()
-	test()
+	# testAsync()
+	# test()
+	testGetText()

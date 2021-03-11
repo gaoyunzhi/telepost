@@ -8,6 +8,7 @@ import webgram
 import time
 from telethon import TelegramClient
 from telegram_util import isUrl
+import copy
 
 # TODO: may need async getTextMarkdown
 
@@ -80,9 +81,10 @@ async def exitTelethon():
         await client_cache['client'].disconnect()
 
 def getText(soup):
+    soup = copy.copy(soup)
     for item in soup.find_all('a'):
         if item.get('href') and not isUrl(item.text):
-                item.replace_with('\n\n' + item.get('href') + '\n\n')
+            item.replace_with('\n\n' + item.get('href') + '\n\n')
     for item in soup.find_all('br'):
         item.replace_with('\n')
     result = soup.text.strip()
