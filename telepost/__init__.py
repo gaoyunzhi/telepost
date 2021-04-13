@@ -76,6 +76,12 @@ async def getImages(channel, post_id, post_size):
         result.append(fn)
     return result
 
+async def genText(channel, post_id):
+    client = await getTelethonClient()
+    entity = await getChannel(client, channel)
+    post = await client.get_messages(entity, post_id)
+    return post.text
+
 async def exitTelethon():
     if 'client' in client_cache:
         await client_cache['client'].disconnect()
