@@ -89,6 +89,8 @@ async def genText(channel, post_id):
 async def exitTelethon():
     if 'client' in client_cache:
         await client_cache['client'].disconnect()
+        return True
+    return False
 
 def getText(soup):
     soup = copy.copy(soup)
