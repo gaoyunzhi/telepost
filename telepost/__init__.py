@@ -81,10 +81,10 @@ async def getImages(channel, post_id, post_size):
 async def genText(channel, post_id):
     client = await getTelethonClient()
     entity = await getChannel(client, channel)
-    posts = await client.get_messages(entity, ids=post_id)
-    if not posts:
+    post = await client.get_messages(entity, ids=post_id)
+    if not post:
         return ''
-    return posts[0].text
+    return post.text
 
 async def exitTelethon():
     if 'client' in client_cache:
