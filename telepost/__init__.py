@@ -10,8 +10,8 @@ from telethon import TelegramClient
 from telegram_util import isUrl
 import copy
 
-# TODO: may need async getTextMarkdown
-
+channels_cache = {}
+client_cache = {}
 with open('credential') as f:
     credential = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -52,14 +52,12 @@ async def getChannelImp(client, channel):
         return entity
     return await client.get_entity(credential['id_map'][channel])
         
-channels_cache = {}
 async def getChannel(client, channel):
     if channel in channels_cache:
         return channels_cache[channel]
     channels_cache[channel] = await getChannelImp(client, channel)
     return channels_cache[channel]
 
-client_cache = {}
 async def getTelethonClient():
     if 'client' in client_cache:
         return client_cache['client']
