@@ -84,7 +84,7 @@ async def genText(channel, post_id):
     posts = await client.get_messages(entity, post_id)
     if not posts:
         return ''
-    return post[0].text
+    return posts[0].text
 
 async def exitTelethon():
     if 'client' in client_cache:
