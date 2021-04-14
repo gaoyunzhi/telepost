@@ -42,6 +42,8 @@ def getPost(channel, existing_file, min_time = None, max_time = None):
         return post
 
 async def getChannelImp(client, channel):
+    if 'id_map' not in credential:
+        credential['id_map'] = {}
     if channel not in credential['id_map']:
         entity = await client.get_entity(channel)
         credential['id_map'][channel] = entity.id
