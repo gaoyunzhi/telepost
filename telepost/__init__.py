@@ -81,7 +81,7 @@ async def getImages(channel, post_id, post_size):
 async def genText(channel, post_id):
     client = await getTelethonClient()
     entity = await getChannel(client, channel)
-    posts = await client.get_messages(entity, post_id)
+    posts = await client.get_messages(entity, ids=post_id)
     if not posts:
         return ''
     return posts[0].text
