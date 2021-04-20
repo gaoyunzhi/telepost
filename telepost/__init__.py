@@ -76,6 +76,12 @@ async def getImages(channel, post_id, post_size):
         result.append(fn)
     return result
 
+async def getPostsTelethon(channel, min_id, limit = 1000):
+    client = await getTelethonClient()
+    entity = await getChannel(client, channel)
+    posts = await client.get_messages(entity, min_id=min_id - 1, max_id = min_id + limit)
+    return posts
+
 async def genText(channel, post_id):
     client = await getTelethonClient()
     entity = await getChannel(client, channel)

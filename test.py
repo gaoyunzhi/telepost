@@ -24,6 +24,22 @@ async def run():
 	print(filenames)
 	await telepost.exitTelethon()
 
+async def testGetPostTelethon():
+	client = await telepost.getTelethonClient()
+	dialogs = await client.get_dialogs()
+	low_priority_chat = await client.get_entity(1310793327)
+	chat = await client.get_entity(1386450222)
+	posts = await telepost.getPostsTelethon(1386450222, 2637)
+	for post in posts[::-1]:
+		if not post.raw_text:
+			continue
+		if type(post.media).__name__ in ['MessageMediaPhoto', 'MessageMediaDocument']:
+			result = await client.edit_message(chat, post.id, text = '(high priority) ' + post.text)
+		else:
+			...
+			await client.send_message(low_priority_chat, post.text)
+	await telepost.exitTelethon()
+
 def testAsync():
 	loop = asyncio.new_event_loop()
 	asyncio.set_event_loop(loop)
@@ -35,6 +51,6 @@ def testGetText():
 	print(telepost.getText(post.text))
 
 if __name__=='__main__':
-	# testAsync()
+	testAsync()
 	# test()
-	testGetText()
+	# testGetText()
