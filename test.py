@@ -6,6 +6,8 @@ import time
 import plain_db
 import asyncio
 import webgram
+from telethon import types
+from telegram_util import matchKey
 
 existing = plain_db.load('existing')
 channel = 'twitter_translate'
@@ -40,10 +42,27 @@ async def testGetPostTelethon():
 			await client.send_message(low_priority_chat, post.text)
 	await telepost.exitTelethon()
 
+async def testPinnedMessage():
+	client = await telepost.getTelethonClient()
+	await client.get_dialogs()
+	chat = await client.get_entity(1386450222)
+	to_chat = await client.get_entity(1197072284)
+	messages = await client.get_messages(chat, filter=types.InputMessagesFilterPinned(), limit=500)
+	print(len(messages))
+	for message in messages:
+		if not message.raw_text:
+			continue
+		print(message.raw_text)
+		if matchKey(message.raw_text, ['已完成', '已翻译']):
+			print('here')
+			result = await client.unpin_message(chat, message.id)
+			print(result)
+	await telepost.exitTelethon()
+
 def testAsync():
 	loop = asyncio.new_event_loop()
 	asyncio.set_event_loop(loop)
-	r = loop.run_until_complete(run())
+	r = loop.run_until_complete(testPinnedMessage())
 	loop.close()
 
 def testGetText():
