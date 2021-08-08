@@ -66,6 +66,18 @@ async def getTelethonClient():
     client_cache['client'] = client   
     return client_cache['client']
 
+async def getImagesV2(channel, post):
+    client = await getTelethonClient()
+    size = 10 if post.grouped_id else 1
+    posts = await client.get_messages(channel, min_id=post.id - 1, max_id = post.id + size)
+    result = []
+    for tmp_post in posts[::-1]:
+        if tmp_post.grouped_id != post.grouped_id or not post.media:
+            continue
+        fn = await tmp_post.download_media('tmp/')
+        result.append(fn)
+    return result
+
 async def getImages(channel, post_id, post_size):
     client = await getTelethonClient()
     entity = await getChannel(client, channel)
