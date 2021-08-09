@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="telepost",
-    version="0.0.12",
+    version="0.0.13",
     author="Yunzhi Gao",
     author_email="gaoyunzhi@gmail.com",
     description="Get post from telegram and make ready to repost it to other places (twitter / douban / reddit).",

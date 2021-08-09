@@ -74,6 +74,11 @@ async def getImagesV2(channel, post):
     for tmp_post in posts[::-1]:
         if tmp_post.grouped_id != post.grouped_id or not post.media:
             continue
+        try:
+            post.media.webpage
+            continue
+        except:
+            ...
         fn = await tmp_post.download_media('tmp/')
         if fn:
             result.append(fn)

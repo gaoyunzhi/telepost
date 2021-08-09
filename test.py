@@ -27,7 +27,7 @@ async def run():
     await telepost.exitTelethon()
 
 async def testImagesV2():
-    post_id = 1392
+    post_id = 1841
     src_id = 1374186417
     client = await telepost.getTelethonClient()
     src = await client.get_entity(src_id)
@@ -76,7 +76,7 @@ def testAsync():
     loop.close()
 
 def testGetText():
-    post = webgram.getPost('twitter_translate', 1218)
+    post = webgram.getPost('twitter_translate', 1841)
     print(telepost.getText(post.text))
 
 if __name__=='__main__':
